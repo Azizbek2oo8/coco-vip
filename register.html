@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>Ro‘yxatdan o‘tish - COCO VIP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: linear-gradient(135deg, #2196f3, #0d47a1);
+      background-size: 400% 400%;
+      animation: gradient 10s ease infinite;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    @keyframes gradient {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    .container {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .form-box {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
+      color: white;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background-color: #00C853;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00B349;
+    }
+
+    p {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    a {
+      color: #fff;
+      text-decoration: underline;
+    }
+  </style>
+
+  <!-- Firebase kutubxonalari -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="form-box">
+      <h2>Ro‘yxatdan o‘tish</h2>
+      <form onsubmit="register(event)">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Parol" required>
+        <input type="text" id="promo" placeholder="Promokod (ixtiyoriy)">
+        <button type="submit">Ro‘yxatdan o‘tish</button>
+      </form>
+      <p>Hisobingiz bormi? <a href="login.html">Kirish</a></p>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBAZ9Edi3Rh5qWf-AYesrQS6P2U51tvBs",
+      authDomain: "coco-49573.firebaseapp.com",
+      projectId: "coco-49573",
+      storageBucket: "coco-49573.appspot.com",
+      messagingSenderId: "771160329024",
+      appId: "1:771160329024:web:9bceae5db86b158ca388a5"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = "home.html";
+      }
+    });
+
+    function register(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const promo = document.getElementById("promo").value.trim();
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const uid = userCredential.user.uid;
+
+          db.collection("users").doc(uid).set({
+            balance: 0,
+            promokod: promo || "",
+            email: email
+          });
+
+          alert("Ro‘yxatdan o‘tish muvaffaqiyatli!");
+          window.location.href = "home.html";
+        })
+        .catch(error => {
+          alert("Xatolik: " + error.message);
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>COCO VIP - Bosh sahifa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+    }
+
+    header {
+      background-color: #2196F3;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    nav a {
+      color: #2196F3;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .miner-wrapper {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .glow-ring {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border: 3px solid transparent;
+      border-radius: 20px;
+      animation: glow 3s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes glow {
+      0% { border-color: rgba(255,0,0,0.2); }
+      50% { border-color: rgba(255,0,0,0.6); }
+      100% { border-color: rgba(255,0,0,0.2); }
+    }
+
+    .miner-card {
+      position: relative;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 1;
+    }
+
+    .miner-card h4 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .miner-card p {
+      margin: 5px 0;
+      color: #555;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #388E3C;
+    }
+  </style>
+</head>
+<body>
+  <header>💎 COCO VIP</header>
+
+  <nav>
+    <a href="#">🏠 Bosh sahifa</a>
+    <a href="profile.html">👤 Profil</a>
+    <a href="referal.html">👥 Referal</a>
+  </nav>
+
+  <div class="container">
+    <div class="miner-wrapper">
+      <div class="glow-ring"></div>
+      <div class="miner-card">
+        <h4>🔋 Mayner 1</h4>
+        <p>Narxi: 50,000 so‘m</p>
+        <p>Kunlik foyda: 5,000 so‘m</p>
+        <button onclick="buyMiner(50000, 5000)">Sotib olish</button>
+      </div>
+    </div>
+
+    <div class="miner-wrapper">
+      <div class="glow-ring"></div>
+      <div class="miner-card">
+        <h4>🔋 Mayner 2</h4>
+        <p>Narxi: 100,000 so‘m</p>
+        <p>Kunlik foyda: 10,000 so‘m</p>
+        <button onclick="buyMiner(100000, 10000)">Sotib olish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase JS -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBAZ9Edi3Rh5qWf-AYesrQS6P2U51tvBs",
+      authDomain: "coco-49573.firebaseapp.com",
+      projectId: "coco-49573",
+      storageBucket: "coco-49573.appspot.com",
+      messagingSenderId: "771160329024",
+      appId: "1:771160329024:web:9bceae5db86b158ca388a5"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+      } else {
+        location.href = "login.html";
+      }
+    });
+
+    function buyMiner(price, dailyIncome) {
+      if (!currentUser) return alert("Avval tizimga kiring!");
+      const uid = currentUser.uid;
+
+      db.collection("users").doc(uid).get().then(doc => {
+        let balance = doc.data().balance || 0;
+        if (balance < price) return alert("Balans yetarli emas!");
+        
+        db.collection("users").doc(uid).update({ balance: balance - price });
+        db.collection("user_mayners").add({
+          uid: uid,
+          kunlik_foyda: dailyIncome,
+          sotib_olgan_vaqti: firebase.firestore.Timestamp.now()
+        });
+
+        alert("Mayner muvaffaqiyatli sotib olindi!");
+      });
+    }
+  </script>
+</body>
+</html>

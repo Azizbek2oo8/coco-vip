@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Kirish sahifasi</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Firebase konfiguratsiyasi
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBAZ9Edi3Rh5qWf-AYesrQS6P2U51tvBs",
+      authDomain: "coco-49573.firebaseapp.com",
+      projectId: "coco-49573",
+      storageBucket: "coco-49573.firebasestorage.app",
+      messagingSenderId: "771160329024",
+      appId: "1:771160329024:web:9bceae5db86b158ca388a5",
+      measurementId: "G-HK10LC89N8"
+    };
+
+    // Firebase ishga tushirish
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Foydalanuvchi login bo‘lsa avtomatik home.html ga o‘tadi
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        window.location.href = "home.html";
+      }
+    });
+
+    // Kirish funksiyasi
+    function login(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          // Muvaffaqiyatli kirganda
+          alert("Kirish muvaffaqiyatli!");
+          window.location.href = "home.html";
+        })
+        .catch((error) => {
+          alert("Xatolik: " + error.message);
+        });
+    }
+  </script>
+</head>
+<body>
+  <h2>Kirish</h2>
+
+  <form onsubmit="login(event)">
+    <input type="email" id="email" placeholder="Email kiriting" required>
+    <input type="password" id="password" placeholder="Parol kiriting" required>
+    <button type="submit">Kirish</button>
+  </form>
+
+  <p>Hisob yo‘qmi? <a href="register.html">Ro‘yxatdan o‘tish</a></p>
+</body>
+</html>

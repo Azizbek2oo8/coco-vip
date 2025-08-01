@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>Referal Tizimi – COCO VIP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0; font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, rgba(3,169,244,0.6), rgba(33,150,243,0.8));
+      color: white; padding: 20px; min-height: 100vh;
+    }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .section { background: rgba(255,255,255,0.1); border-radius: 15px;
+      padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    input { width: 100%; padding: 10px; border: none; border-radius: 8px;
+      margin-bottom: 10px; font-size: 16px;}
+    button { width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background-color: #00e676; color: white; font-size: 16px; cursor: pointer;}
+    button:hover { background-color: #00c853; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+  <h2>👥 Referal Tizimi</h2>
+
+  <div class="section">
+    <p>🔗 Sizning referral link:</p>
+    <input type="text" id="refLink" readonly>
+    <button onclick="copyLink()">📋 Nusxa olish</button>
+  </div>
+
+  <div class="section">
+    <h3>👤 Ro‘yxatdan o‘tganlar</h3>
+    <ul id="refList">Yuklanmoqda...</ul>
+  </div>
+
+  <div class="section">
+    <h3>💰 Depozit qilgan referallar</h3>
+    <ul id="depList">Yuklanmoqda...</ul>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBAZ9Edi3Rh5qWf-AYesrQS6P2U51tvBs",
+      authDomain: "coco-49573.firebaseapp.com",
+      projectId: "coco-49573",
+      storageBucket: "coco-49573.appspot.com",
+      messagingSenderId: "771160329024",
+      appId: "1:771160329024:web:9bceae5db86b158ca388a5"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(user=>{
+      if(!user) return location.href="login.html";
+      const uid = user.uid;
+      const promo = uid.slice(0,6).toUpperCase();
+      const botLink = `https://t.me/coco_vip_bot?start=${promo}`;
+      document.getElementById("refLink").value = botLink;
+
+      db.collection("users").where("referred_by","==",promo).get()
+        .then(snap=>{
+          const html = snap.docs.map(d=>`<li>${d.data().email}</li>`).join('') ||
+            '<li>🚫 Hech kim ro‘yxatdan o‘tmagan</li>';
+          document.getElementById("refList").innerHTML = html;
+        });
+
+      db.collection("depozit_sorovlar").where("referred_by","==",promo).get()
+        .then(snap=>{
+          const html = snap.docs.map(d=>
+            `<li>${d.data().email} – ${d.data().amount} so‘m</li>`).join('') ||
+            '<li>🚫 Hech kim depozit qilmagan</li>';
+          document.getElementById("depList").innerHTML = html;
+        });
+
+    });
+
+    function copyLink(){
+      const inp = document.getElementById("refLink");
+      inp.select(); document.execCommand("copy");
+      alert("Referral link nusxalandi:\n" + inp.value);
+    }
+  </script>
+</body>
+</html>

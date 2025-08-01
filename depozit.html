@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>💰 Depozit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.08);
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      backdrop-filter: blur(8px);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #00f0ff;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #d0faff;
+      text-align: left;
+    }
+
+    input {
+      margin-top: 8px;
+      padding: 12px;
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      background-color: #00e5ff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #00bcd4;
+    }
+
+    .verified {
+      margin: 20px auto 0;
+      width: 60px;
+      display: none;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #aaffaa;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>💰 Depozit qilish</h2>
+    
+    <label>Kartaga to‘lov qiling:</label>
+    <p style="font-size: 18px; font-weight: bold;">9860 1966 0095 5070</p>
+    <p style="font-size: 14px;">Minimal: 50,000 so‘m</p>
+
+    <label>💵 Miqdor (so‘m):</label>
+    <input type="number" id="amount" placeholder="Masalan: 50000">
+
+    <label>💳 Qaysi kartadan to‘lov qildingiz?</label>
+    <input type="text" id="user-card" placeholder="8600 1234 5678 9000">
+
+    <button onclick="sendRequest()">Tasdiqlash</button>
+
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Instagram_verified_badge.png" class="verified" id="verified">
+    <div class="status" id="status">✅ To‘lovingiz tekshirishga yuborildi</div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBAZ9Edi3Rh5qWf-AYesrQS6P2U51tvBs",
+      authDomain: "coco-49573.firebaseapp.com",
+      projectId: "coco-49573",
+      storageBucket: "coco-49573.appspot.com",
+      messagingSenderId: "771160329024",
+      appId: "1:771160329024:web:9bceae5db86b158ca388a5"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    function sendRequest() {
+      const amount = parseInt(document.getElementById("amount").value);
+      const card = document.getElementById("user-card").value;
+      const verified = document.getElementById("verified");
+      const status = document.getElementById("status");
+
+      const user = auth.currentUser;
+      if (!user) return alert("Login qiling!");
+
+      if (!amount || amount < 50000) return alert("Minimal miqdor 50,000 so‘m");
+      if (!card || card.length < 8) return alert("To‘lov qilgan karta raqamini kiriting");
+
+      db.collection("depozit_sorovlar").add({
+        uid: user.uid,
+        email: user.email,
+        amount: amount,
+        user_card: card,
+        status: "kutilmoqda",
+        time: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        verified.style.display = "block";
+        status.style.display = "block";
+      }).catch((err) => {
+        alert("Xatolik: " + err.message);
+      });
+    }
+  </script>
+</body>
+</html>
